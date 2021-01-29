@@ -46,8 +46,8 @@ CKB client should implement the scoring system and following security strategies
 * `Peer` - Other nodes connected through the network
 * `PeerInfo` - A data struct used for describing information of `Peer`
 * `PeerStore` - A component used to store `PeerInfo`
-* `outbound peer` - describe a peer which we initiate a connection.
-* `inbound peer` - describe a peer which the peer initiates a connection.
+* `outbound peer` - describe a peer which initiates a connection.
+* `inbound peer` - describe a peer which accepts a connection.
 * `max_outbound` - Max number of outbound peers.
 * `max_inbound` - Max number of inbound peers.
 * `network group` - A concept which used when to evict out peers, calculating from the peer's IP address(prefix 16 bits of IPv4 and prefix 32 bits of IPv6).
@@ -80,7 +80,7 @@ Parameters below are required in Scoring System:
 Network layer should provide the scoring interface, allow upper sub-protocols (such as: `sync`, `relay`) to report behaviors of a peer, and update peer's score based on `SCORING_SCHEMA`.
 
 ``` ruby
-peer.score += BEHAVIOURS[i] * SCOREING_SCHEMA[BEHAVIORS[i]]
+peer.score += SCOREING_SCHEMA[BEHAVIOUR]
 ```
 
 Peer's behaviors can be distinguished into three categories:
@@ -129,7 +129,7 @@ The process of choosing an outbound peer:
 2. Choose an "anchor peer":
     1. Choose recently connected outbound peers from peer store(can select by `LastConnectedAt` field of peer info).
     2. Execute step 3, if `recent_peers` is empty; otherwise, we choose the peer which has got the highest score from `recent_peers` and return it as the new outbound peer.
-3. Choose peer info randomly which must have a higher score than `TRY_SCORE` and have different `network group` from all currently connected outbound peers from PeerStore, return it as the new outbound peer and if we can't find anyone, then execute step 5.
+3. Choose peer info randomly which must have a higher score than `TRY_SCORE` and have different `network group` from all currently connected outbound peers from PeerStore, return it as the new outbound peer and if we can't find anyone, then execute step 4.
 4. Choose peer info randomly from boot nodes.
 
 In step 1, we choose an anchor peer if the node has zero or only a few connected outbound peers. This behavior refers to "Anchor Connection" strategy which described in the [Eclipse Attack][2] paper.
